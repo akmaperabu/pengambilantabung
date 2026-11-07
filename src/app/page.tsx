@@ -483,7 +483,7 @@ export default function CreateTicketPage() {
                 Kalo mau scan disini masee
               </p>
               <p className="text-[11px] text-gray-400 font-medium">
-                Klik langsung scan tabungya!
+                Klik langsung scan tabungnya!
               </p>
             </div>
           </div>
