@@ -38,8 +38,13 @@ const globalForDb = globalThis as unknown as {
 
 export function getDb(): Client {
   if (!globalForDb.libsqlClient) {
-    const tursoUrl = process.env.TURSO_DATABASE_URL;
-    const tursoToken = process.env.TURSO_AUTH_TOKEN;
+    const tursoUrl =
+      process.env.TURSO_DATABASE_URL ||
+      process.env.TURSO_URL ||
+      process.env.STORAGE_URL;
+    const tursoToken =
+      process.env.TURSO_AUTH_TOKEN ||
+      process.env.STORAGE_AUTH_TOKEN;
 
     if (tursoUrl) {
       // Connect to Turso Cloud (Production / Vercel)
