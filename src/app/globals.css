@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #f6f7f9;
+    color: #18181b;
+    -webkit-tap-highlight-color: transparent;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  ::selection {
+    background-color: #18181b;
+    color: #ffffff;
+  }
+}
+
+/* Subtle diagonal hatch pattern */
+.bg-hatch-pattern {
+  background-image: repeating-linear-gradient(-45deg,
+      #e4e7ec,
+      #e4e7ec 3px,
+      #f2f4f7 3px,
+      #f2f4f7 6px);
+}
+
+/* Make html5-qrcode video responsive and clean */
+#qr-reader-container {
+  border: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+}
+
+#qr-reader-container video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+#qr-shaded-region {
+  border-width: 0 !important;
+}
+
+@keyframes toastPop {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.92);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.02);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-toast-pop {
+  animation: toastPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
