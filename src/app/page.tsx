@@ -362,23 +362,23 @@ export default function CreateTicketPage() {
       {/* Floating Toast Notification */}
       {toast && (
         <div
-          className={`fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm px-4 py-3 rounded-2xl shadow-xl border flex items-center justify-between gap-2 transition-all animate-toast-pop ${toast.type === "success"
+          className={`fixed top-16 inset-x-0 mx-auto z-50 w-[92%] max-w-sm px-4 py-3 rounded-2xl shadow-xl border flex items-center justify-between gap-2 transition-all animate-toast-pop ${toast.type === "success"
             ? "bg-[#18181B] text-white border-white/10"
             : "bg-[#F43F5E] text-white border-rose-500"
             }`}
         >
-          <div className="flex items-center gap-2.5 text-xs font-semibold">
+          <div className="flex items-center gap-2.5 text-xs font-semibold min-w-0">
             {toast.type === "success" ? (
               <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0" />
             ) : (
               <AlertCircle className="w-4 h-4 text-white shrink-0" />
             )}
-            <span>{toast.text}</span>
+            <span className="break-words leading-snug">{toast.text}</span>
           </div>
           <button
             type="button"
             onClick={() => setToast(null)}
-            className="p-1 rounded-full hover:bg-white/10 transition-colors"
+            className="p-1 rounded-full hover:bg-white/10 transition-colors shrink-0"
           >
             <X className="w-3.5 h-3.5" />
           </button>
