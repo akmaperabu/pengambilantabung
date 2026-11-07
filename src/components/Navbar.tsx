@@ -41,11 +41,11 @@ export default function Navbar() {
         <div className="bg-white rounded-3xl px-4 py-3 border border-[#F0F1F3] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-2xl bg-[#18181B] flex items-center justify-center text-white font-bold text-xs tracking-tight shadow-xs shrink-0">
-              BCD
+              =
             </div>
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-sm font-bold text-[#18181B] tracking-tight truncate">
-                Bantu Catatan Driver
+                Pengambilan Tabung
               </span>
               <span className="hidden xs:inline-flex items-center gap-0.5 text-[11px] font-medium text-[#71717A] bg-[#F4F5F7] px-2.5 py-0.5 rounded-full">
                 Tabung Gas

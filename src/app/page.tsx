@@ -425,7 +425,7 @@ export default function CreateTicketPage() {
                 type="text"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Contoh: PT. Krakatau Baja Industri"
+                placeholder="Contoh: PT. Sumber Daya Energi"
                 className="w-full pl-10 pr-3.5 py-2.5 text-xs sm:text-sm font-semibold text-[#18181B] placeholder:text-[#A1A1AA] placeholder:font-normal bg-[#F4F5F7] border border-transparent rounded-2xl focus:bg-white focus:border-[#18181B] focus:ring-2 focus:ring-black/5 focus:outline-none transition-all"
               />
             </div>
@@ -593,7 +593,7 @@ export default function CreateTicketPage() {
                       if (existingSerials.has(code)) {
                         setToast({
                           type: "error",
-                          text: `Tabung ${code} sudah ada di dalam tiket.`,
+                          text: `Tabung ${code} sudah ada di dalam daftar.`,
                         });
                         return;
                       }
@@ -606,7 +606,7 @@ export default function CreateTicketPage() {
                       setSearchQuery("");
                       setToast({
                         type: "success",
-                        text: `Tabung "${code}" ditambahkan ke tiket`,
+                        text: `Tabung "${code}" ditambahkan ke daftar`,
                       });
                     }}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#18181B] text-white text-xs font-bold hover:bg-[#27272A] transition-colors"
@@ -721,10 +721,10 @@ export default function CreateTicketPage() {
             </div>
             <div>
               <h2 className="text-sm font-bold text-[#18181B] leading-tight">
-                Daftar Tabung di Tiket
+                Daftar Tabung
               </h2>
               <p className="text-[11px] text-[#71717A] font-medium">
-                Real-time • {ticketItems.length} tabung siap dikunci
+                Real-time • {ticketItems.length} tabung siap ditarik
               </p>
             </div>
           </div>
@@ -737,7 +737,7 @@ export default function CreateTicketPage() {
         {ticketItems.length === 0 ? (
           <div className="py-8 px-4 text-center rounded-2xl bg-[#F4F5F7]/70 space-y-1">
             <p className="text-xs font-bold text-[#18181B]">
-              Belum ada tabung di tiket aktif
+              Belum ada tabung di pengambilan aktif
             </p>
             <p className="text-[11px] text-[#71717A]">
               Scan QR tabung atau centang dari pencarian di atas.
