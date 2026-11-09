@@ -133,6 +133,13 @@ export default function CreateTicketPage() {
   // Fetch Server-Side Live Search results
   useEffect(() => {
     let active = true;
+    if (!debouncedQuery) {
+      setSearchResults([]);
+      setMatchedCount(0);
+      setIsSearching(false);
+      return;
+    }
+
     async function fetchCylinders() {
       setIsSearching(true);
       try {
@@ -356,6 +363,9 @@ export default function CreateTicketPage() {
   const selectableInSearch = searchResults.filter(
     (c) => !existingSerials.has(c.serial_number.toUpperCase())
   );
+  const hasSearch = searchQuery.trim().length > 0;
+  const isActuallySearching =
+    isSearching || (hasSearch && searchQuery.trim() !== debouncedQuery);
 
   return (
     <div className="space-y-4">
@@ -493,18 +503,20 @@ export default function CreateTicketPage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-[#18181B]">
-
+              Cari Manual Tabung
             </span>
-            <span className="text-[11px] font-medium text-[#71717A]">
-              {isSearching ? (
-                <span className="inline-flex items-center gap-1 text-[#18181B]">
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  Mencari...
-                </span>
-              ) : (
-                `${matchedCount.toLocaleString("id-ID")} cocok`
-              )}
-            </span>
+            {hasSearch && (
+              <span className="text-[11px] font-medium text-[#71717A]">
+                {isActuallySearching ? (
+                  <span className="inline-flex items-center gap-1 text-[#18181B]">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Mencari...
+                  </span>
+                ) : (
+                  `${matchedCount.toLocaleString("id-ID")} cocok`
+                )}
+              </span>
+            )}
           </div>
 
           <div className="relative">
@@ -519,7 +531,10 @@ export default function CreateTicketPage() {
             {searchQuery && (
               <button
                 type="button"
-                onClick={() => setSearchQuery("")}
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedMap({});
+                }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#A1A1AA] hover:text-[#18181B]"
               >
                 <X className="w-4 h-4" />
@@ -527,146 +542,157 @@ export default function CreateTicketPage() {
             )}
           </div>
 
-          {/* Filter & Select All Pill Bar */}
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[11px] font-medium text-[#71717A]">
-              Centang tabung terus klik Masukkan
-            </span>
-            {selectableInSearch.length > 0 && (
-              <button
-                type="button"
-                onClick={handleSelectAllVisible}
-                className="px-3 py-1 rounded-full border border-[#E4E7EC] text-[11px] font-semibold text-[#18181B] hover:bg-[#F4F5F7] transition-colors cursor-pointer"
-              >
-                {selectableInSearch.every(
-                  (c) => selectedMap[c.serial_number.toUpperCase()]
-                )
-                  ? "Batal Pilih"
-                  : `Pilih Semua (${selectableInSearch.length})`}
-              </button>
-            )}
-          </div>
-
-          {/* Multi-select Floating Bar inside Card when items are checked */}
-          {selectedCount > 0 && (
-            <div className="bg-[#18181B] text-white p-3 rounded-2xl flex items-center justify-between gap-2 shadow-lg">
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-white text-[#18181B] text-xs font-extrabold flex items-center justify-center">
-                  {selectedCount}
+          {/* Tampilkan daftar hasil dan kontrol hanya saat user mencari */}
+          {hasSearch && (
+            <>
+              {/* Filter & Select All Pill Bar */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-medium text-[#71717A]">
+                  Centang tabung terus klik Masukkan
                 </span>
-                <span className="text-xs font-semibold">Nah ini</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setSelectedMap({})}
-                  className="px-2.5 py-1.5 rounded-full text-[11px] font-semibold text-gray-400 hover:text-white transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={handleInsertCheckedToTicket}
-                  className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-white text-[#18181B] hover:bg-gray-100 text-xs font-bold shadow-xs cursor-pointer transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Tambah Bree
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Clean Minimalist Search Results List */}
-          <div className="divide-y divide-[#F4F5F7] max-h-60 overflow-y-auto pr-0.5">
-            {searchResults.length === 0 ? (
-              <div className="py-6 text-center space-y-2.5">
-                <p className="text-xs text-[#71717A]">
-                  {debouncedQuery
-                    ? `Tidak ada tabung dengan kata kunci "${debouncedQuery}"`
-                    : "Database Master masih kosong. Silakan import CSV di menu Master DB."}
-                </p>
-                {debouncedQuery.length >= 2 && (
+                {selectableInSearch.length > 0 && (
                   <button
                     type="button"
-                    onClick={() => {
-                      const code = debouncedQuery.toUpperCase();
-                      if (existingSerials.has(code)) {
-                        setToast({
-                          type: "error",
-                          text: `Tabung ${code} sudah ada di dalam daftar.`,
-                        });
-                        return;
-                      }
-                      handleAddSingleCylinder({
-                        serial_number: code,
-                        cylinder_number: "-",
-                        gas_type: "-",
-                        input_method: "SEARCH",
-                      });
-                      setSearchQuery("");
-                      setToast({
-                        type: "success",
-                        text: `Tabung "${code}" ditambahkan ke daftar`,
-                      });
-                    }}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#18181B] text-white text-xs font-bold hover:bg-[#27272A] transition-colors"
+                    onClick={handleSelectAllVisible}
+                    className="px-3 py-1 rounded-full border border-[#E4E7EC] text-[11px] font-semibold text-[#18181B] hover:bg-[#F4F5F7] transition-colors cursor-pointer"
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    Tambah Manual &ldquo;{debouncedQuery.toUpperCase()}&rdquo;
+                    {selectableInSearch.every(
+                      (c) => selectedMap[c.serial_number.toUpperCase()]
+                    )
+                      ? "Batal Pilih"
+                      : `Pilih Semua (${selectableInSearch.length})`}
                   </button>
                 )}
               </div>
-            ) : (
-              searchResults.map((cyl) => {
-                const serial = cyl.serial_number.toUpperCase();
-                const alreadyInTicket = existingSerials.has(serial);
-                const isChecked = Boolean(selectedMap[serial]);
 
-                return (
-                  <div
-                    key={cyl.id}
-                    onClick={() => {
-                      if (!alreadyInTicket) toggleSelectCylinder(cyl);
-                    }}
-                    className={`flex items-center justify-between py-2.5 px-2 rounded-xl transition-colors ${alreadyInTicket
-                      ? "opacity-40 cursor-not-allowed"
-                      : isChecked
-                        ? "bg-[#F4F5F7] cursor-pointer"
-                        : "hover:bg-[#F4F5F7]/70 cursor-pointer"
-                      }`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      {alreadyInTicket ? (
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">
-                          Masuk
-                        </span>
-                      ) : isChecked ? (
-                        <CheckSquare className="w-4 h-4 text-[#18181B] shrink-0" />
-                      ) : (
-                        <Square className="w-4 h-4 text-[#D4D4D8] shrink-0" />
-                      )}
-
-                      <div className="truncate">
-                        <p className="font-bold text-[#18181B] text-xs sm:text-sm leading-tight">
-                          {cyl.serial_number}
-                        </p>
-                        <p className="text-[11px] text-[#71717A] font-medium">
-                          No. Tabung:{" "}
-                          <strong className="text-[#18181B]">
-                            {cyl.cylinder_number || "-"}
-                          </strong>
-                        </p>
-                      </div>
-                    </div>
-
-                    <span className="text-[11px] font-semibold text-[#52525B] bg-[#F4F5F7] px-2.5 py-1 rounded-full shrink-0">
-                      {cyl.gas_type}
+              {/* Multi-select Floating Bar inside Card when items are checked */}
+              {selectedCount > 0 && (
+                <div className="bg-[#18181B] text-white p-3 rounded-2xl flex items-center justify-between gap-2 shadow-lg">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-white text-[#18181B] text-xs font-extrabold flex items-center justify-center">
+                      {selectedCount}
                     </span>
+                    <span className="text-xs font-semibold">Nah ini</span>
                   </div>
-                );
-              })
-            )}
-          </div>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedMap({})}
+                      className="px-2.5 py-1.5 rounded-full text-[11px] font-semibold text-gray-400 hover:text-white transition-colors"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleInsertCheckedToTicket}
+                      className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-white text-[#18181B] hover:bg-gray-100 text-xs font-bold shadow-xs cursor-pointer transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      Tambah Bree
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Clean Minimalist Search Results List */}
+              <div className="divide-y divide-[#F4F5F7] max-h-60 overflow-y-auto pr-0.5">
+                {isActuallySearching && searchResults.length === 0 ? (
+                  <div className="py-6 text-center space-y-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-[#71717A] mx-auto" />
+                    <p className="text-xs text-[#71717A]">Mencari tabung...</p>
+                  </div>
+                ) : searchResults.length === 0 ? (
+                  <div className="py-6 text-center space-y-2.5">
+                    <p className="text-xs text-[#71717A]">
+                      {debouncedQuery
+                        ? `Tidak ada tabung dengan kata kunci "${debouncedQuery}"`
+                        : "Ketik kata kunci untuk mencari tabung"}
+                    </p>
+                    {debouncedQuery.length >= 2 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const code = debouncedQuery.toUpperCase();
+                          if (existingSerials.has(code)) {
+                            setToast({
+                              type: "error",
+                              text: `Tabung ${code} sudah ada di dalam daftar.`,
+                            });
+                            return;
+                          }
+                          handleAddSingleCylinder({
+                            serial_number: code,
+                            cylinder_number: "-",
+                            gas_type: "-",
+                            input_method: "SEARCH",
+                          });
+                          setSearchQuery("");
+                          setSelectedMap({});
+                          setToast({
+                            type: "success",
+                            text: `Tabung "${code}" ditambahkan ke daftar`,
+                          });
+                        }}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#18181B] text-white text-xs font-bold hover:bg-[#27272A] transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Tambah Manual &ldquo;{debouncedQuery.toUpperCase()}&rdquo;
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  searchResults.map((cyl) => {
+                    const serial = cyl.serial_number.toUpperCase();
+                    const alreadyInTicket = existingSerials.has(serial);
+                    const isChecked = Boolean(selectedMap[serial]);
+
+                    return (
+                      <div
+                        key={cyl.id}
+                        onClick={() => {
+                          if (!alreadyInTicket) toggleSelectCylinder(cyl);
+                        }}
+                        className={`flex items-center justify-between py-2.5 px-2 rounded-xl transition-colors ${alreadyInTicket
+                          ? "opacity-40 cursor-not-allowed"
+                          : isChecked
+                            ? "bg-[#F4F5F7] cursor-pointer"
+                            : "hover:bg-[#F4F5F7]/70 cursor-pointer"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          {alreadyInTicket ? (
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">
+                              Masuk
+                            </span>
+                          ) : isChecked ? (
+                            <CheckSquare className="w-4 h-4 text-[#18181B] shrink-0" />
+                          ) : (
+                            <Square className="w-4 h-4 text-[#D4D4D8] shrink-0" />
+                          )}
+
+                          <div className="truncate">
+                            <p className="font-bold text-[#18181B] text-xs sm:text-sm leading-tight">
+                              {cyl.serial_number}
+                            </p>
+                            <p className="text-[11px] text-[#71717A] font-medium">
+                              No. Tabung:{" "}
+                              <strong className="text-[#18181B]">
+                                {cyl.cylinder_number || "-"}
+                              </strong>
+                            </p>
+                          </div>
+                        </div>
+
+                        <span className="text-[11px] font-semibold text-[#52525B] bg-[#F4F5F7] px-2.5 py-1 rounded-full shrink-0">
+                          {cyl.gas_type}
+                        </span>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </>
+          )}
         </div>
       </section>
 
